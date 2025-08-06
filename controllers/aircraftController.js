@@ -1,8 +1,10 @@
 import ftp from 'basic-ftp';
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
+import { createGunzip } from 'zlib';
+import { Readable } from 'stream';
 
-const TEMP_DOWNLOAD_DIR = "./temp";
+const TEMP_DOWNLOAD_DIR = './temp';
 
 export const getAllAircraftData = async (req, res) => {
   const client = new ftp.Client();
@@ -13,7 +15,7 @@ export const getAllAircraftData = async (req, res) => {
       host: process.env.SFTP_HOST,
       user: process.env.SFTP_USERNAME,
       password: process.env.SFTP_PASSWORD,
-      port: process.env.SFTP_PORT, // FTP 포트
+      port: process.env.SFTP_PORT,
       secure: false,
     });
 
@@ -22,15 +24,15 @@ export const getAllAircraftData = async (req, res) => {
     const list = await client.list();
 
     const jsonFiles = list
-      .filter((file) => file.isFile && file.name.endsWith(".json"))
+      .filter((file) => file.isFile && file.name.endsWith('.json.gz'))
       .sort((a, b) => {
-        const aTime = parseInt(a.name.replace(".json", ""));
-        const bTime = parseInt(b.name.replace(".json", ""));
+        const aTime = parseInt(a.name.replace('.json.gz', ''));
+        const bTime = parseInt(b.name.replace('.json.gz', ''));
         return bTime - aTime;
       });
 
     if (jsonFiles.length === 0) {
-      return res.status(404).json({ message: "파일이 존재하지 않습니다." });
+      return res.status(404).json({ message: '파일이 존재하지 않습니다.' });
     }
 
     const latestFile = jsonFiles[0];
@@ -44,17 +46,31 @@ export const getAllAircraftData = async (req, res) => {
     // FTP에서 로컬 임시 파일로 다운로드
     await client.downloadTo(localFilePath, latestFile.name);
 
-    // 로컬 파일 읽기
-    const jsonData = fs.readFileSync(localFilePath, "utf-8");
-    const parsedData = JSON.parse(jsonData);
+    // 압축된 파일 읽기 (버퍼로)
+    const compressedBuffer = fs.readFileSync(localFilePath);
 
-    // 필요하면 임시파일 삭제 (선택)
+    // gzip 압축 해제
+    const decompressedBuffer = await new Promise((resolve, reject) => {
+      const gunzip = createGunzip();
+      const chunks = [];
+
+      const stream = Readable.from(compressedBuffer).pipe(gunzip);
+      stream.on('data', (chunk) => chunks.push(chunk));
+      stream.on('end', () => resolve(Buffer.concat(chunks)));
+      stream.on('error', reject);
+    });
+
+    const jsonString = decompressedBuffer.toString('utf-8');
+    const parsedData = JSON.parse(jsonString);
+
+    // 임시 파일 삭제
     fs.unlinkSync(localFilePath);
 
     res.json(parsedData);
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "서버 에러 발생" });
+    res.status(500).json({ message: '서버 에러 발생' });
   } finally {
     client.close();
   }
