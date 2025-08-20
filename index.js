@@ -2,6 +2,7 @@ import express from 'express';
 import corsConfig from './config/corsConfig.js';
 import dotenv from 'dotenv';
 import aircraftRoutes from './routes/aircraftRoutes.js';
+import currentRoutes from './routes/currentRoutes.js';
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ app.use(corsConfig);
 app.use(express.json());
 
 app.use('/api',aircraftRoutes);
+app.use('/api',currentRoutes);
 
 app.listen(PORT,()=>{
     console.log('server running');
