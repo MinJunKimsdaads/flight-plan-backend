@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { createGunzip } from 'zlib';
 import { Readable } from 'stream';
+import { getAccessToken } from '../services/services.js';
+import { AIRCRAFT_ALL_URL } from '../constant/constant.js';
 
 const TEMP_DOWNLOAD_DIR = './temp';
 
@@ -75,3 +77,25 @@ export const getAllAircraftData = async (req, res) => {
     client.close();
   }
 };
+
+export const getAllAircraftDirectData = async () => {
+  try{
+    const token = await getAccessToken();
+    const headers = token
+        ? { Authorization: `Bearer ${token}` }
+        : {};
+    const response = await fetch(AIRCRAFT_ALL_URL, {
+        method: 'GET',
+        headers,
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch(error){
+      console.warn(error);
+      throw error;
+  }
+}
