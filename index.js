@@ -18,6 +18,17 @@ app.use('/api',aircraftRoutes);
 app.use('/api',currentRoutes);
 app.use('/api',airportRoutes);
 app.use('/api',commonRoutes);
+app.get("/ping-opensky", async (req, res) => {
+  try {
+    const response = await fetch("https://auth.opensky-network.org", {
+      method: "GET",
+      signal: AbortSignal.timeout(10000),
+    });
+    res.json({ ok: true, status: response.status });
+  } catch (err) {
+    res.json({ ok: false, error: err.message });
+  }
+});
 
 app.listen(PORT,()=>{
     console.log('server running');
