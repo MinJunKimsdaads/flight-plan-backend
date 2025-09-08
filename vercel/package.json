@@ -1,0 +1,27 @@
+{
+  "name": "flight-plan-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MinJunKimsdaads/flight-plan-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MinJunKimsdaads/flight-plan-backend/issues"
+  },
+  "homepage": "https://github.com/MinJunKimsdaads/flight-plan-backend#readme",
+  "dependencies": {
+    "basic-ftp": "^5.0.5",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0"
+  }
+}
