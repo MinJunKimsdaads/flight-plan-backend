@@ -86,6 +86,8 @@ let cache = {
 const CACHE_TTL = 60 * 5000; // 5분 캐시
 
 const getOpenSkyApi = async () => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000); // 30초
   const token = await getAccessToken();
   const headers = token
       ? { Authorization: `Bearer ${token}` }
@@ -93,7 +95,9 @@ const getOpenSkyApi = async () => {
   const response = await fetch(AIRCRAFT_ALL_URL, {
       method: 'GET',
       headers,
+      signal: controller.signal,
   });
+  clearTimeout(timeout);
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
