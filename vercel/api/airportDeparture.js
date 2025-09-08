@@ -1,3 +1,5 @@
+import { getAccessToken } from "../services/services.js";
+
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 const AIRPORT_DEPARTURE_URL = 'https://opensky-network.org/api/flights/departure'
 
