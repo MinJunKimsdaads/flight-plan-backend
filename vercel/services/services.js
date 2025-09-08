@@ -1,6 +1,3 @@
-import { TOKEN_URL } from "../constant/constant.js";
-const TOKEN_URL = 'https://opensky-network.org/api/states/all';
-//opensky file open token
 export const getAccessToken = async () => {
     try {
         const params = new URLSearchParams();

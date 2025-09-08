@@ -10,11 +10,6 @@ export default async function handler(req, res) {
   const client = new ftp.Client();
   client.ftp.verbose = false;
 
-  console.log(process.env.SFTP_HOST);
-  console.log(process.env.SFTP_USERNAME);
-  console.log(process.env.SFTP_PASSWORD);
-  console.log(process.env.SFTP_PORT);
-
   try {
     await client.access({
       host: process.env.SFTP_HOST,
