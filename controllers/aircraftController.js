@@ -4,7 +4,7 @@ import path from 'path';
 import { createGunzip } from 'zlib';
 import { Readable } from 'stream';
 import { getAccessToken } from '../services/services.js';
-import { AIRCRAFT_ALL_URL } from '../constant/constant.js';
+import { AIRCRAFT_ALL_URL, AIRCRAFT_SINGLE_URL } from '../constant/constant.js';
 
 const TEMP_DOWNLOAD_DIR = './temp';
 
@@ -78,22 +78,69 @@ export const getAllAircraftData = async (req, res) => {
   }
 };
 
-export const getAllAircraftDirectData = async () => {
+let cache = {
+  data: null,
+  timestamp: 0, 
+}
+
+const CACHE_TTL = 60 * 5000; // 5분 캐시
+
+const getOpenSkyApi = async () => {
+  const token = await getAccessToken();
+  const headers = token
+      ? { Authorization: `Bearer ${token}` }
+      : {};
+  const response = await fetch(AIRCRAFT_ALL_URL, {
+      method: 'GET',
+      headers,
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  const data =  await response.json();
+  return data;
+}
+
+export const getAllAircraftDirectData = async (req, res) => {
   try{
+    const now = Date.now();
+    if (cache.data && now - cache.timestamp < CACHE_TTL) {
+      console.log("캐시 사용");
+      return res.json(cache.data);
+    }
+
+    console.log("OpenSky API 호출");
+    const data = await getOpenSkyApi();
+    cache = { data, timestamp: now };
+
+    res.json(data);
+  } catch(error){
+      console.warn(error);
+      throw error;
+  }
+}
+
+export const getSingleAircraftData = async (req, res) => {
+  try{
+    const { icao24, begin, end } = req.query;
+
+    if (!icao24 || !begin || !end) {
+      return res.status(400).json({ message: "icao24, begin, end는 필수입니다." });
+    }
     const token = await getAccessToken();
     const headers = token
         ? { Authorization: `Bearer ${token}` }
         : {};
-    const response = await fetch(AIRCRAFT_ALL_URL, {
+    const url = `${AIRCRAFT_SINGLE_URL}?icao24=${encodeURIComponent(icao24)}&begin=${encodeURIComponent(begin)}&end=${encodeURIComponent(end)}`;
+    const response = await fetch(`${url}`, {
         method: 'GET',
         headers,
     });
     if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-
-    const data = await response.json();
-    return data;
+    const data =  await response.json();
+    res.json(data);
   } catch(error){
       console.warn(error);
       throw error;

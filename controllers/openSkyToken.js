@@ -1,5 +1,3 @@
-import dotenv from 'dotenv';
-
 export const getAccessToken = async () => {
     try {
         const params = new URLSearchParams();
