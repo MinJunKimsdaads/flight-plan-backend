@@ -1,13 +1,13 @@
-import { TOKEN_URL } from "../constant/constant.js";
 //opensky file open token
 export const getAccessToken = async () => {
     try {
+        const TOKEN_URL = 'https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token'
         const params = new URLSearchParams();
         params.append('grant_type', 'client_credentials');
         params.append('client_id', process.env.OPENSKY_CLIENT_ID);
         params.append('client_secret', process.env.OPENSKY_CLIENT_SECRET);
 
-        const response = await fetch('https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token', {
+        const response = await fetch(TOKEN_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

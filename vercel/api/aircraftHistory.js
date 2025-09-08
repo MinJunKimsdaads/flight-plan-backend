@@ -1,0 +1,33 @@
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
+const AIRCRAFT_SINGLE_URL = 'https://opensky-network.org/api/flights/aircraft'
+
+export default async function handler(req, res) {
+  const origin = req.headers.origin;
+  if (!origin || allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin || "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  } else {
+    return res.status(403).json({ message: "CORS 정책에 의해 차단된 요청입니다." });
+  }
+  // Preflight 요청 처리
+  if (req.method === "OPTIONS") return res.status(200).end();
+  try{
+    const { icao24, begin, end } = req.query;
+
+    if (!icao24 || !begin || !end) {
+      return res.status(400).json({ message: "icao24, begin, end는 필수입니다." });
+    }
+    const token = await getAccessToken(); // 기존 getAccessToken 함수 사용
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await fetch(AIRCRAFT_SINGLE_URL, {
+        method: "GET",
+        headers,
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+    return response.json();
+  }catch(error){
+    console.warn(error);
+  }
+}

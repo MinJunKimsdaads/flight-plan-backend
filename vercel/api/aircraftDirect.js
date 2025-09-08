@@ -39,23 +39,23 @@ export default async function handler(req, res) {
 
   // Preflight 요청 처리
   if (req.method === "OPTIONS") return res.status(200).end();
-    try{
-        const now = Date.now();
-        if (cache.data && now - cache.timestamp < CACHE_TTL) {
-        console.log("캐시 사용");
-        return res.json(cache.data);
-        }
+  try{
+      const now = Date.now();
+      if (cache.data && now - cache.timestamp < CACHE_TTL) {
+      console.log("캐시 사용");
+      return res.json(cache.data);
+      }
 
-        console.log("OpenSky API 호출");
-        const data = await getOpenSkyApi();
-        cache = { data, timestamp: now };
+      console.log("OpenSky API 호출");
+      const data = await getOpenSkyApi();
+      cache = { data, timestamp: now };
 
-        res.json(data);
-    } catch(error){
-        console.warn(error);
-        if (error.name === "AbortError") {
-            return res.status(504).json({ message: "OpenSky API 요청 시간 초과" });
-        }
-        res.status(500).json({ message: "서버 에러 발생", error: error.message });
-    }
+      res.json(data);
+  } catch(error){
+      console.warn(error);
+      if (error.name === "AbortError") {
+          return res.status(504).json({ message: "OpenSky API 요청 시간 초과" });
+      }
+      res.status(500).json({ message: "서버 에러 발생", error: error.message });
+  }
 }
