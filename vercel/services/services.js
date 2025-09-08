@@ -1,5 +1,6 @@
 export const getAccessToken = async () => {
     try {
+        const TOKEN_URL = 'https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token'
         const params = new URLSearchParams();
         params.append('grant_type', 'client_credentials');
         params.append('client_id', process.env.OPENSKY_CLIENT_ID);
