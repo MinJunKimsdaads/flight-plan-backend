@@ -1,5 +1,4 @@
 import { TOKEN_URL } from "../constant/constant.js";
-const TOKEN_URL = 'https://opensky-network.org/api/states/all';
 //opensky file open token
 export const getAccessToken = async () => {
     try {
@@ -8,7 +7,7 @@ export const getAccessToken = async () => {
         params.append('client_id', process.env.OPENSKY_CLIENT_ID);
         params.append('client_secret', process.env.OPENSKY_CLIENT_SECRET);
 
-        const response = await fetch(TOKEN_URL, {
+        const response = await fetch('https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
