@@ -6,7 +6,7 @@ import { Readable } from 'stream';
 
 const TEMP_DOWNLOAD_DIR = '/tmp';
 
-export const getAllAircraftData = async (req, res) => {
+export default async function handler(req, res) {
   const client = new ftp.Client();
   client.ftp.verbose = false;
 
@@ -37,23 +37,14 @@ export const getAllAircraftData = async (req, res) => {
 
     const latestFile = jsonFiles[0];
 
-    if (!fs.existsSync(TEMP_DOWNLOAD_DIR)) {
-      fs.mkdirSync(TEMP_DOWNLOAD_DIR, { recursive: true });
-    }
+    const localFilePath = path.join(TEMP_DOWNLOAD_DIR, latestFile.name);
 
-    const localFilePath = path.resolve(TEMP_DOWNLOAD_DIR, latestFile.name);
-
-    // FTP에서 로컬 임시 파일로 다운로드
     await client.downloadTo(localFilePath, latestFile.name);
 
-    // 압축된 파일 읽기 (버퍼로)
     const compressedBuffer = fs.readFileSync(localFilePath);
-
-    // gzip 압축 해제
     const decompressedBuffer = await new Promise((resolve, reject) => {
       const gunzip = createGunzip();
       const chunks = [];
-
       const stream = Readable.from(compressedBuffer).pipe(gunzip);
       stream.on('data', (chunk) => chunks.push(chunk));
       stream.on('end', () => resolve(Buffer.concat(chunks)));
@@ -63,15 +54,14 @@ export const getAllAircraftData = async (req, res) => {
     const jsonString = decompressedBuffer.toString('utf-8');
     const parsedData = JSON.parse(jsonString);
 
-    // 임시 파일 삭제
     fs.unlinkSync(localFilePath);
 
-    res.json(parsedData);
+    res.status(200).json(parsedData);
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: '서버 에러 발생' });
+    res.status(500).json({ message: '서버 에러 발생', error: err.message });
   } finally {
     client.close();
   }
-};
+}
