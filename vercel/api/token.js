@@ -1,4 +1,4 @@
-import { handleCors } from "../services/corsConfig";
+import { handleCors } from "../services/corsConfig.js";
 import { getAccessToken } from "../services/services.js";
 
 
