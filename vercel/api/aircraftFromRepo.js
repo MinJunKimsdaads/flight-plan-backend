@@ -4,8 +4,18 @@ const REPO_OWNER = process.env.REPO_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
 const REPO_PATH = process.env.REPO_PATH;
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
+
 export default async function handler(req, res) {
   try {
+    const origin = req.headers.origin;
+    if (!origin || allowedOrigins.includes(origin)) {
+        res.setHeader("Access-Control-Allow-Origin", origin || "*");
+        res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+    } else {
+        return res.status(403).json({ message: "CORS 정책에 의해 차단된 요청입니다." });
+    }
     // GitHub API: 레포지토리 특정 폴더 내용 가져오기
     const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${REPO_PATH}`;
     const response = await fetch(url, {
