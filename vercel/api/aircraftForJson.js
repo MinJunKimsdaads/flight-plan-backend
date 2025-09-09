@@ -17,6 +17,7 @@ export default async function handler(req, res) {
     return res.status(403).json({ message: "CORS 정책에 의해 차단된 요청입니다." });
   }
   const client = new ftp.Client();
+  console.log(client);
   client.ftp.verbose = false;
 
   if (req.method === "OPTIONS") return res.status(200).end();
@@ -32,6 +33,8 @@ export default async function handler(req, res) {
     await client.cd(process.env.SFTP_PATH_AIRCRAFT_ALL);
 
     const list = await client.list();
+
+    console.log(list);
 
     const jsonFiles = list
       .filter((file) => file.isFile && file.name.endsWith('.json.gz'))
