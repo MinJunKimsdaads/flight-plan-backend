@@ -19,6 +19,9 @@ export default async function handler(req, res) {
     if (!airport || !begin || !end) {
         return res.status(400).json({ message: "airport, begin, end는 필수입니다." });
     }
+    console.log(airport);
+    console.log(begin);
+    console.log(end);
     const token = await getAccessToken(); // 기존 getAccessToken 함수 사용
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
     const response = await fetch(`${AIRPORT_DEPARTURE_URL}?airport=${encodeURIComponent(airport)}&begin=${encodeURIComponent(begin)}&end=${encodeURIComponent(end)}`, {

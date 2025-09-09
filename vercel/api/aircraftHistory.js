@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     }
     const token = await getAccessToken(); // 기존 getAccessToken 함수 사용
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    const response = await fetch(AIRCRAFT_SINGLE_URL, {
+    const response = await fetch(`${AIRCRAFT_SINGLE_URL}?icao24=${encodeURIComponent(icao24)}&begin=${encodeURIComponent(begin)}&end=${encodeURIComponent(end)}`, {
         method: "GET",
         headers,
     });
