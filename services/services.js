@@ -1,4 +1,4 @@
-import { TOKEN_URL } from "../constant/constant";
+import { TOKEN_URL } from "../constant/constant.js";
 
 //opensky file open token
 export const getAccessToken = async () => {
