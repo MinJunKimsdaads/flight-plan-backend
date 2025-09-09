@@ -1,0 +1,11 @@
+import { handleCors } from "../services/corsConfig";
+import { getAccessToken } from "../services/services.JS";
+
+export default async function handler(req, res) {
+    if(!handleCors(req, res)) return;
+    const token = await getAccessToken();
+    
+    if(token){
+        res.json(token);
+    }
+}
