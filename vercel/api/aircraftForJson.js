@@ -3,21 +3,13 @@ import fs from 'fs';
 import path from 'path';
 import { createGunzip } from 'zlib';
 import { Readable } from 'stream';
+import { handleCors } from "../services/corsConfig.js";
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 const TEMP_DOWNLOAD_DIR = '/tmp';
 
 export default async function handler(req, res) {
-  const origin = req.headers.origin;
-  if (!origin || allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin || "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
-  } else {
-    return res.status(403).json({ message: "CORS 정책에 의해 차단된 요청입니다." });
-  }
+  if(!handleCors(req, res)) return;
   const client = new ftp.Client();
-  console.log(client);
   client.ftp.verbose = false;
 
   if (req.method === "OPTIONS") return res.status(200).end();
@@ -34,7 +26,6 @@ export default async function handler(req, res) {
 
     const list = await client.list();
 
-    console.log(list);
 
     const jsonFiles = list
       .filter((file) => file.isFile && file.name.endsWith('.json.gz'))

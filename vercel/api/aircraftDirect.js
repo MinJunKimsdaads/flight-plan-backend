@@ -1,10 +1,10 @@
+import { handleCors } from "../services/corsConfig.js";
 import { getAccessToken } from "../services/services.js";
 
 let cache = {
   data: null,
   timestamp: 0, 
 }
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 const AIRCRAFT_ALL_URL = 'https://opensky-network.org/api/states/all';
 const CACHE_TTL = 60 * 5000; // 5분 캐시
 
@@ -28,14 +28,7 @@ const getOpenSkyApi = async () => {
 }
 
 export default async function handler(req, res) {
-  const origin = req.headers.origin;
-  if (!origin || allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin || "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
-  } else {
-    return res.status(403).json({ message: "CORS 정책에 의해 차단된 요청입니다." });
-  }
+  if(!handleCors(req, res)) return;
 
   // Preflight 요청 처리
   if (req.method === "OPTIONS") return res.status(200).end();

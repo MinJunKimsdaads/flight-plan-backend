@@ -1,3 +1,5 @@
+import { handleCors } from "../services/corsConfig.js";
+
 // 환경 변수
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const REPO_OWNER = process.env.REPO_OWNER;
