@@ -1,4 +1,3 @@
-import { handleCors } from "../services/corsConfig.js";
 import { getAccessToken } from "../services/services.js";
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
@@ -16,5 +15,7 @@ export default async function handler(req, res) {
     
     if(token){
         res.json(token);
+    }else{
+        res.json([]);
     }
 }
