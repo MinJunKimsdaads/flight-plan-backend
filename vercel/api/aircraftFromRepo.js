@@ -6,7 +6,7 @@ const REPO_OWNER = process.env.REPO_OWNER;
 const REPO_NAME = process.env.REPO_NAME;
 const REPO_PATH = process.env.REPO_PATH;
 
-
+/////
 export default async function handler(req, res) {
   try {
     if (!handleCors(req, res)) return; // CORS 처리 후 요청 차단 시 종료
